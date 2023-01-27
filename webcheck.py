@@ -2,7 +2,7 @@ import csv
 import requests
 
 #insert bot API token and your chat-id
-TOKEN = "insert your token her"
+TOKEN = "insert your token here"
 chat_id = "insert your chat_id here"
 
 message = "Website connection status : "
