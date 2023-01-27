@@ -1,10 +1,9 @@
 import os
 import csv
 import requests
-#import json
 
 #insert bot API token and your chat-id
-TOKEN = "insert your token her"
+TOKEN = "insert your token here"
 chat_id = "insert your chat_id here"
 
 message = "Host check result : "
