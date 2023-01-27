@@ -14,7 +14,7 @@ Requests Modules sent messages via Telegram Bot.
 * Insert your API Key and Chat ID to ```hostcheck.py``` and ```webcheck.py```
 * ```hostcheck.py``` use ```hostlist.csv``` as the source, so insert your network device's name and IP Address to ```hostlist.csv```
 * ```webcheck.py``` use ```weblist.csv``` as the source, so insert your website Name and URL ```to weblist.csv```
-* you can remove ```verify=False``` on ```webcheck.py``` if your SSL Certificate are not self-signed.
+* you can remove ```verify=False``` on ```webcheck.py``` on line 27 if your SSL Certificate are not self-signed.
 * double check your ```/path/to/csv/files.csv``` on both python files.
 * execute using ```python3 /path/to/code.py``` (recommended) or ```python /path/to/code.py``` (for those who has configured python binary path)
 
