@@ -21,3 +21,5 @@ Requests Modules sent messages via Telegram Bot.
 *Warning*
 * Only use this script on private machine with private IP, for security reasons.
 
+If you find my code useful, I'll gladly accept a [cup of coffee](https://ko-fi.com/bayusky)
+
