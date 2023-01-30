@@ -1,11 +1,11 @@
 # host-check
 Simple python script to check connection to network devices and websites (+ssl expired date) and report it via Telegram Bot.
 ```host-check``` use csv files to simplified adding data to execute.
+
 CSV files usage :
 * ```botinfo.csv``` contains API Key dan chat-ID for telegram bot
 * ```hostlist.csv``` contains network device's name and IP Address
 * ```weblist.csv``` contains domain or subdomain name *only* (without http:// or https://)
-Requests Modules sent messages via Telegram Bot.
 
 *Requirements*
 * Python 3
