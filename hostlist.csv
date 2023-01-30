@@ -1,3 +1,3 @@
 Hostname;IP Address
-Router;192.168.1.1
-Switch;192.168.1.2
+Google DNS;8.8.8.8
+DNS 2;8.8.4.4
