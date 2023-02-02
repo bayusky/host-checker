@@ -1,8 +1,13 @@
 import csv
 import sys
-from cryptography import x509
 from datetime import datetime
 import os
+import json
+
+try:
+    from dotenv import load_dotenv
+except Exception:
+    os.popen('pip3 install dotenv')
 
 try:
     import requests
@@ -10,30 +15,16 @@ except Exception:
     print("No module 'requests' found. Install: pip3 install requests")
     sys.exit(1)   
 
+
+load_dotenv()
 try:
-    import OpenSSL
+    comm_app = os.environ.get('COMM_APP')            
 except Exception:
-    print("No module 'OpenSSL' found. Install: pip3 install pyOpenSSL")
-    sys.exit(1)
-import ssl
-
-
-try:
-    bot_csv = open('botinfo.csv')
-except OSError:
-    print("File not found, check availability of botinfo.csv")
-#insert bot API token and your chat-id
-with bot_csv:
-     botinfo = csv.reader(bot_csv, delimiter=';')
-     line_count = 0
-     for row in botinfo:
-        if line_count == 0:
-            print("botinfo.csv OK")
-            line_count += 1
-        else:
-            TOKEN = f"{row[0]}"
-            chat_id = f"{row[1]}"
+    print("can't read .env, make sure .env configurd properly")
+    sys.exit()
             
+timestamp = datetime.now()
+current_time = timestamp.strftime("%d-%m-%Y, %H:%M")
 
 ###############################################################
 ##                  Network Device Ping Check                ## 
@@ -45,8 +36,6 @@ try:
 except OSError:
     print("File not found, check availability or permission of hostlist.csv")
 
-# set message
-message = "Host status : "
 
 with csv_file:
     csv_reader = csv.reader(csv_file, delimiter=';')
@@ -54,7 +43,7 @@ with csv_file:
     for row in csv_reader:
         #skip header (column name) on first line
         if line_count == 0 : 
-            message +=f"\n-------------------------------"
+            message = ""
             line_count +=1
         else :
             #put data into variable
@@ -72,15 +61,49 @@ with csv_file:
                 message += f"\n{hostname} status: Online"
             line_count += 1
           
+if comm_app == "slack": #if slack was choosen
+    url = os.environ.get('WEBHOOK')
+    bot_name = os.environ.get('BOT_NAME')
+    channel = os.environ.get('CHANNEL')
+    emoji_id = os.environ.get('EMOJI_ID') 
+    title = f"Host status {current_time} :"
+    slack_data = {
+        "username": bot_name,
+        "icon_emoji": emoji_id,
+        "channel": channel,
+        "attachments": [
+            {
+                "fields": [
+                    {
+                        "title": title,
+                        "value": message,
+                        "short": "false",
+                    }
+                ]
+            }
+        ]
+    }
+    byte_length = str(sys.getsizeof(slack_data))
+    headers = {'Content-Type': "application/json", 'Content-Length': byte_length}
+    response = requests.post(url, data=json.dumps(slack_data), headers=headers)
+    if response.status_code != 200:
+        raise Exception(response.status_code, response.text)
+elif comm_app=="telegram": #if telegram used
+    TOKEN = os.environ.get('API_TOKEN')
+    chat_id = os.environ.get('CHAT_ID')
+    #set message title
+    title = f"Host status {current_time}: "
+    title += f"\n-------------------------------"
+    #hook to bot API
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={title+message}"
+    #send messages
+    (requests.get(url).json())
+else:
+    print(".env not configured properly")
 
-#hook to bot API
-url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
-
-#send messages
-(requests.get(url).json())
 
 ###############################################################
-##        Webs and SSL Certificate Expiry Date Check         ## 
+##                    Web Service Checker                    ## 
 ###############################################################
 
 
@@ -88,11 +111,8 @@ url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={
 try:
     csv_file = open('weblist.csv')
 except OSError:
-    print("File not found, check availability or permission of hostlist.csv")
+    print("File not found, check availability or permission of weblist.csv")
 
-#reset message
-message_web = "Website status : "
-message_ssl = "SSL expired date :"
 
 #open web csv file
 with csv_file:
@@ -102,8 +122,7 @@ with csv_file:
         
         #skip header (column name) on first line               
         if line_count == 0 : 
-            message_web +=f"\n-------------------------------"
-            message_ssl +=f"\n-------------------------------"
+            message_web = ""
             line_count +=1
         else :
             #put csv data into variable
@@ -123,24 +142,48 @@ with csv_file:
                 #if connection success (response code 200)
                 if status == 200 : 
                     message_web += f"\n{hostname} webservice online"
-                    #get ssl expired date
-                    cert = ssl.get_server_certificate((url,443))
-                    x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
-                    bytes = x509.get_notAfter()
-                    #print(bytes)
-                    timestamp = bytes.decode('utf-8')
-                    expiry_date = datetime.strptime(timestamp, '%Y%m%d%H%M%S%z').date().isoformat()
-                    message_ssl += f"\n{hostname} Certificate expired on {expiry_date}\n"
+                    
                 else:
                     message_web += f"\n{hostname} response status {status}"
                 
             line_count += 1
           
 
-#send message via telegram bot
-url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message_web}"
-(requests.get(url).json()) # this sends the message
-
-#send message via telegram bot
-url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message_ssl}"
-(requests.get(url).json()) # this sends the message
+if comm_app == "slack": #if slack was choosen
+    url = os.environ.get('WEBHOOK')
+    bot_name = os.environ.get('BOT_NAME')
+    channel = os.environ.get('CHANNEL')
+    emoji_id = os.environ.get('EMOJI_ID') 
+    title = f"Website status {current_time}:"
+    slack_data = {
+        "username": bot_name,
+        "icon_emoji": emoji_id,
+        "channel": channel,
+        "attachments": [
+            {
+                "fields": [
+                    {
+                        "title": title,
+                        "value": message_web,
+                        "short": "false",
+                    }
+                ]
+            }
+        ]
+    }
+    byte_length = str(sys.getsizeof(slack_data))
+    headers = {'Content-Type': "application/json", 'Content-Length': byte_length}
+    response = requests.post(url, data=json.dumps(slack_data), headers=headers)
+    if response.status_code != 200:
+        raise Exception(response.status_code, response.text)
+elif comm_app=="telegram": #if telegram used
+    TOKEN = os.environ.get('API_TOKEN')
+    chat_id = os.environ.get('CHAT_ID')
+    title_web = f"Website status {current_time}: "
+    title_web += f"\n-------------------------------"
+    #hook to bot API
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={title_web+message_web}"
+    #send messages
+    (requests.get(url).json())
+else:
+    print(".env not configured properly")
