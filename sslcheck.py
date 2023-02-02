@@ -1,7 +1,14 @@
 import csv
 import sys
-from cryptography import x509
+import json
+import os
 from datetime import datetime
+
+try: 
+    from cryptography import x509
+except Exception:
+    os.popen('pip3 install cryptography')
+    sys.exit(1)
 
 try:
     import requests
@@ -14,24 +21,22 @@ try:
 except Exception:
     print("No module 'OpenSSL' found. Install: pip3 install pyOpenSSL")
     sys.exit(1)
-import ssl 
+import ssl
 
-#read botinfo.csv to get API token and your chat-id
 try:
-    bot_csv = open('botinfo.csv')
-except OSError:
-    print("File not found, check availability of botinfo.csv")
+    from dotenv import load_dotenv
+except Exception:
+    os.popen('pip3 install dotenv')
 
-with bot_csv:
-     botinfo = csv.reader(bot_csv, delimiter=';')
-     line_count = 0
-     for row in botinfo:
-        if line_count == 0:
-            print("botinfo.csv OK")
-            line_count += 1
-        else:
-            TOKEN = f"{row[0]}"
-            chat_id = f"{row[1]}"
+load_dotenv()
+try:
+    comm_app = os.environ.get('COMM_APP')            
+except Exception:
+    print("can't read .env, make sure .env configurd properly")
+    sys.exit(1)
+
+timestamp = datetime.now()
+current_time = timestamp.strftime("%d-%m-%Y, %H:%M")
 
 #open web csv file
 try:
@@ -39,7 +44,6 @@ try:
 except OSError:
     print("File not found, check availability or permission of hostlist.csv")
 
-message = "Website and SSL status : "
 
 #open csv file
 with open('weblist.csv') as csv_file:
@@ -48,7 +52,7 @@ with open('weblist.csv') as csv_file:
     for row in csv_reader:
         #skip header (column name) on first line               
         if line_count == 0 : 
-            message +=f"\n-------------------------------"
+            message =""
             line_count +=1
         else :
             #put csv data into variable
@@ -81,6 +85,44 @@ with open('weblist.csv') as csv_file:
           
 
 
-url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
-(requests.get(url).json()) # this sends the message
+if comm_app == "slack": #if slack was choosen
+    url = os.environ.get('WEBHOOK')
+    bot_name = os.environ.get('BOT_NAME')
+    channel = os.environ.get('CHANNEL')
+    emoji_id = os.environ.get('EMOJI_ID') 
+    title = f"Webservice status {current_time} :"
+    slack_data = {
+        "username": bot_name,
+        "icon_emoji": emoji_id,
+        "channel": channel,
+        "attachments": [
+            {
+                "fields": [
+                    {
+                        "title": title,
+                        "value": message,
+                        "short": "false",
+                    }
+                ]
+            }
+        ]
+    }
+    byte_length = str(sys.getsizeof(slack_data))
+    headers = {'Content-Type': "application/json", 'Content-Length': byte_length}
+    response = requests.post(url, data=json.dumps(slack_data), headers=headers)
+    if response.status_code != 200:
+        raise Exception(response.status_code, response.text)
+elif comm_app=="telegram": #if telegram used
+    TOKEN = os.environ.get('API_TOKEN')
+    chat_id = os.environ.get('CHAT_ID')
+    #set message title
+    title = f"Webservice status {current_time}: "
+    title += f"\n-------------------------------"
+    #hook to bot API
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={title+message}"
+    #send messages
+    (requests.get(url).json())
+else:
+    print(".env not configured properly")
+
 

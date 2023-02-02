@@ -60,10 +60,11 @@ if comm_app == "slack":
     url = os.environ.get('WEBHOOK')
     bot_name = os.environ.get('BOT_NAME')
     channel = os.environ.get('CHANNEL')
-    #emoji_id = ":computer:" 
+    emoji_id = os.environ.get('EMOJI_ID') 
     title = "New report!"
     slack_data = {
         "username": bot_name,
+        "icon_emoji": emoji_id,
         "channel": channel,
         "attachments": [
             {
