@@ -2,7 +2,10 @@ import os
 import csv
 import sys
 import json
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except Exception:
+    os.popen('pip3 install dotenv')
 
 try:
     import requests
