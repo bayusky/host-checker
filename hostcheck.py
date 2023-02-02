@@ -5,7 +5,8 @@ import json
 try:
     from dotenv import load_dotenv
 except Exception:
-    os.popen('pip3 install dotenv')
+    print("No module 'dotenv' found. Install: pip3 install dotenv")
+    sys.exit(1)
 
 try:
     import requests

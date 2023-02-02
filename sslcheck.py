@@ -7,7 +7,7 @@ from datetime import datetime
 try: 
     from cryptography import x509
 except Exception:
-    os.popen('pip3 install cryptography')
+    print("No module 'cryptography' found. Install: pip3 install cryptography")
     sys.exit(1)
 
 try:
@@ -26,7 +26,8 @@ import ssl
 try:
     from dotenv import load_dotenv
 except Exception:
-    os.popen('pip3 install dotenv')
+    print("No module 'dotenv' found. Install: pip3 install dotenv")
+    sys.exit(1)
 
 load_dotenv()
 try:
