@@ -16,14 +16,15 @@ except Exception:
     print("No module 'requests' found. Install: pip3 install requests")
     sys.exit(1)   
 
-
+#read environment configuration from .env
 load_dotenv()
 try:
     comm_app = os.environ.get('COMM_APP')            
 except Exception:
     print("can't read .env, make sure .env configurd properly")
     sys.exit()
-            
+
+#create timestamp for message            
 timestamp = datetime.now()
 current_time = timestamp.strftime("%d-%m-%Y, %H:%M")
 
@@ -61,7 +62,9 @@ with csv_file:
             else: 
                 message += f"\n{hostname} status: Online"
             line_count += 1
-          
+
+
+#communication line to be used
 if comm_app == "slack": #if slack was choosen
     url = os.environ.get('WEBHOOK')
     bot_name = os.environ.get('BOT_NAME')
@@ -149,7 +152,7 @@ with csv_file:
                 
             line_count += 1
           
-
+#choose communication line to be used
 if comm_app == "slack": #if slack was choosen
     url = os.environ.get('WEBHOOK')
     bot_name = os.environ.get('BOT_NAME')

@@ -29,6 +29,8 @@ except Exception:
     print("No module 'dotenv' found. Install: pip3 install dotenv")
     sys.exit(1)
 
+
+#read environment configuration from .env
 load_dotenv()
 try:
     comm_app = os.environ.get('COMM_APP')            
@@ -85,7 +87,7 @@ with open('weblist.csv') as csv_file:
             line_count += 1
           
 
-
+#if condition to choose between telegram or slack
 if comm_app == "slack": #if slack was choosen
     url = os.environ.get('WEBHOOK')
     bot_name = os.environ.get('BOT_NAME')
