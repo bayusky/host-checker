@@ -1,6 +1,6 @@
 # host-checker
 Simple python script to check connection to network devices, websites, and ssl expiration date. Then send the report it via Telegram or Slack Bot.
-```host-checker``` use .env to put configuration parameter and csv files to simplified adding data to execute.
+```host-checker``` use ```.env``` to put configuration parameter and csv files to simplified adding data to execute.
 
 *Files used, make sure you rename it first*
 * ```.env``` contains Telegram and Slack parameter. Rename ```.env.template``` to ```.env```
@@ -27,6 +27,10 @@ Simple python script to check connection to network devices, websites, and ssl e
 * double check your ```*.csv``` and ```.env``` to avoid error.
 * execute using ```python3 /path/to/code.py``` (recommended) or ```python /path/to/code.py``` (for those who has configured python as an alias for python3)
 * You can make a cronjob for periodical check.
+
+*Development Plan*
+* Uptime checker
+* Web based statistic Uptime viewer
 
 *Warning*
 * Only use this script on private machine with private IP, for security reasons.
