@@ -2,6 +2,8 @@ import os
 import csv
 import sys
 import json
+import time
+import platform
 try:
     from dotenv import load_dotenv
 except Exception:
@@ -28,7 +30,12 @@ try:
 except OSError:
     print("File not found, check availability or permission of hostlist.csv")
 
-# set message
+start_time = time.time()
+#check platform OS
+platform_os = platform.uname()
+#print (platform_os)
+
+#set message
 message = "Host status : "
 
 #open csv file
@@ -47,14 +54,21 @@ with csv_file:
             ip_addr = row[1]
              
             #do ping host 
-            stream = os.popen('ping -c 4 {}'.format(ip_addr)) 
+            stream = os.popen('ping -n 4 {}'.format(ip_addr)) 
             
             #check feedback from host
             output = stream.read()
-            if '0 received' in output: 
-                message += f"\n{hostname} status: ---OFFLINE--"
-            else: 
-                message += f"\n{hostname} status: Online"
+            if 'Windows' in platform_os: #if ping run on Windows
+                #print(output)
+                if 'Received = 0' in output: 
+                    message += f"\n{hostname} status: ---OFFLINE--"
+                else: 
+                    message += f"\n{hostname} status: Online"
+            else:
+                if '0 Received' in output: 
+                    message += f"\n{hostname} status: ---OFFLINE--"
+                else: 
+                    message += f"\n{hostname} status: Online"
             line_count += 1
           
 
@@ -96,3 +110,5 @@ elif comm_app=="telegram":
 else:
     print(".env not configured properly")
 
+
+#print("--- %s seconds ---" % (time.time() - start_time))
