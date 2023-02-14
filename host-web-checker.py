@@ -3,6 +3,8 @@ import sys
 from datetime import datetime
 import os
 import json
+import platform
+import time
 
 try:
     from dotenv import load_dotenv
@@ -32,6 +34,11 @@ current_time = timestamp.strftime("%d-%m-%Y, %H:%M")
 ##                  Network Device Ping Check                ## 
 ###############################################################
 
+start_time = time.time()
+#check platform OS
+platform_os = platform.uname()
+#print (platform_os)
+
 #open host csv file
 try:
     csv_file = open('hostlist.csv')
@@ -52,15 +59,23 @@ with csv_file:
             hostname = row[0]
             ip_addr = row[1]
              
-            #do ping host 
-            stream = os.popen('ping -c 4 {}'.format(ip_addr)) 
-            
+           #do ping host 
+            stream = os.popen('ping -n 4 {}'.format(ip_addr)) 
+            #print (stream)
             #check feedback from host
+            
             output = stream.read()
-            if '0 received' in output: 
-                message += f"\n{hostname} status: ---OFFLINE--"
-            else: 
-                message += f"\n{hostname} status: Online"
+            if 'Windows' in platform_os: #if Windows
+                #print(output)
+                if 'Received = 0' in output: 
+                    message += f"\n{hostname} status: ---OFFLINE--"
+                else: 
+                    message += f"\n{hostname} status: Online"
+            else:
+                if '0 Received' in output: 
+                    message += f"\n{hostname} status: ---OFFLINE--"
+                else: 
+                    message += f"\n{hostname} status: Online"
             line_count += 1
 
 
@@ -132,7 +147,7 @@ with csv_file:
             #put csv data into variable
             hostname = row[0]
             url = row[1]
-            print(f"https://{url}")
+            #print(f"https://{url}")
             try:
                 #send GET to http / https
                 response = requests.get(f"https://{url}") #verify=False)
