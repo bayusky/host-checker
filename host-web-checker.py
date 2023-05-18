@@ -5,6 +5,7 @@ import os
 import json
 import platform
 import time
+from bs4 import BeautifulSoup
 
 try:
     from dotenv import load_dotenv
@@ -151,8 +152,8 @@ with csv_file:
             try:
                 #send GET to http / https
                 response = requests.get(f"https://{url}") #verify=False)
-            except requests.exceptions.Timeout as e: #if error timeout
-                message_web += f"\n{hostname} timeout or SSL self-signed, try verify=False on line 113"
+            except requests.exceptions.RequestException as e: #throw error on request
+                message_web += f"\n{hostname} is ---OFFLINE---" #if the SSL is self-signed, uncomment verify=False on line 154
             
             else:
                 #get response status code
@@ -160,20 +161,26 @@ with csv_file:
 
                 #if connection success (response code 200)
                 if status == 200 : 
-                    message_web += f"\n{hostname} webservice online"
+                    message_web += f"\n*{hostname} is online"
+                    soup = BeautifulSoup(response.content, "html.parser")
+                    title = soup.title.text.strip() if soup.title else "No title found"
+                    message_web += f"\n--TITLE: {title}"
+                    #print(f"Website is accessible. Title: {title}")
                     
                 else:
                     message_web += f"\n{hostname} response status {status}"
                 
             line_count += 1
           
+
+current_time_web = timestamp.strftime("%d-%m-%Y, %H:%M")
 #choose communication line to be used
 if comm_app == "slack": #if slack was choosen
     url = os.environ.get('WEBHOOK')
     bot_name = os.environ.get('BOT_NAME')
     channel = os.environ.get('CHANNEL')
     emoji_id = os.environ.get('EMOJI_ID') 
-    title = f"Website status {current_time}:"
+    title = f"Website status {current_time_web}:"
     slack_data = {
         "username": bot_name,
         "icon_emoji": emoji_id,

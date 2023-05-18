@@ -9,10 +9,7 @@ Simple python script to check connection to network devices, websites, and ssl e
 
 *Requirements*
 * Python 3
-* Request modules, install it using ```pip3 install requests```
-* OpenSSL modules, install it using ```pip3 install pyOpenSSL```
-* Cryptography modules, install it using ```pip3 install cryptography```
-* Dotenv modules, install it using ```pip3 install python-dotenv```
+* All required modules, install it using ```pip install -r requirements.txt```
 * Fully working telegram bot, as reference you can read it here : https://bayuskylabs.com/integrasi-wazuh-alert-dengan-telegram-bot/ to create fully working telegram bot.
 * Fully working slack channel and webhook.
 
@@ -26,7 +23,7 @@ Simple python script to check connection to network devices, websites, and ssl e
 * you can uncomment ```verify=False``` on ```webcheck.py```, ```sslcheck.py```, or ```host-web-checker.py``` if your SSL Certificate are self-signed.
 * double check your ```*.csv``` and ```.env``` to avoid error.
 * execute using ```python3 /path/to/code.py``` (recommended) or ```python /path/to/code.py``` (for those who has configured python as an alias for python3)
-* You can make a cronjob for periodical check.
+* You can make a cronjob (Linux) or task scheduler(Windows) for periodical check.
 
 *Warning*
 * Only use this script on private machine with private IP, for security reasons.

@@ -3,6 +3,8 @@ import sys
 import json
 import os
 from datetime import datetime
+from bs4 import BeautifulSoup
+
 try:
     from dotenv import load_dotenv
 except Exception:
@@ -49,15 +51,18 @@ with open('weblist.csv') as csv_file:
             try:
                 #send GET to http / https
                 response = requests.get(f"https://{url}") #verify=False)
-            except requests.exceptions.Timeout as e: #if error timeout
-                message += f"\n{hostname} timeout or SSL self-signed, try verify=False on line 50"
+            except requests.exceptions.RequestException as e: #if error timeout
+                message += f"\n{hostname} ---OFFLINE---" #if self-signed SSL is used, uncomment verify=False on line 53"
             
             else:
                 #get response status code
                 status = response.status_code
                 #if connection success (response code 200)
                 if status == 200 : 
-                    message += f"\n{hostname} webservice online"
+                    message += f"\n{hostname} is online"
+                    soup = BeautifulSoup(response.content, "html.parser")
+                    title = soup.title.text.strip() if soup.title else "No title found"
+                    message += f"\n--TITLE: {title}"
                 else:
                     message += f"\n{hostname} response status {status}"
             

@@ -1,0 +1,5 @@
+requests
+pyOpenSSL
+cryptography
+python-dotenv
+bs4
