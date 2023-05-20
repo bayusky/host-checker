@@ -60,19 +60,22 @@ with csv_file:
             hostname = row[0]
             ip_addr = row[1]
              
-           #do ping host 
-            stream = os.popen('ping -n 4 {}'.format(ip_addr)) 
-            #print (stream)
-            #check feedback from host
-            
-            output = stream.read()
+            #do ping host 
             if 'Windows' in platform_os: #if Windows
+                stream = os.popen('ping -n 4 {}'.format(ip_addr)) 
+            
+                #check feedback from host
+                output = stream.read()
                 #print(output)
                 if 'Received = 0' in output: 
                     message += f"\n{hostname} status: ---OFFLINE--"
                 else: 
                     message += f"\n{hostname} status: Online"
             else:
+                stream = os.popen('ping -c 4 {}'.format(ip_addr)) 
+            
+                #check feedback from host
+                output = stream.read()
                 if '0 Received' in output: 
                     message += f"\n{hostname} status: ---OFFLINE--"
                 else: 
