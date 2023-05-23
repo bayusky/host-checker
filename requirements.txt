@@ -3,3 +3,4 @@ pyOpenSSL
 cryptography
 python-dotenv
 bs4
+platform
